@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group = 'ren.lawliet.Java'
@@ -15,7 +16,13 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.7'
 
 }
-
+shadowJar{
+    manifest {
+        attributes(
+                'Main-Class': 'ren.lawliet.Java.Main'  // 入口点类
+        )
+    }
+}
 test {
     useJUnitPlatform()
 }
