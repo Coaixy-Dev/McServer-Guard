@@ -54,7 +54,8 @@ public class ClassFinder {
 
                 }
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println("Error: " + e.getMessage() + " " + jarFilePathStr);
+
             }
         }
         return classInfoList;

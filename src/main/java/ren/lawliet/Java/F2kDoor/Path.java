@@ -24,7 +24,7 @@ public class Path {
                         pluginPathArray.add(path.toString());
                     });
         } catch (IOException e) {
-            System.err.println("没有找到Plugins目录 " + e.getMessage());
+            System.err.println("Plugin Directory is not find of " + e.getMessage());
         }
 
         return pluginPathArray;
