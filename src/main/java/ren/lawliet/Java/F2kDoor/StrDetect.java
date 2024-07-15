@@ -18,7 +18,8 @@ public class StrDetect {
     private static final String TARGET_STRING = "setop";
     private static final int BUFFER_SIZE = TARGET_STRING.length();
 
-    public record detectStatus(boolean status, ArrayList<String> className, ArrayList<Integer> line) {
+    public record detectStatus(boolean status, String jarFileName, ArrayList<String> className,
+                               ArrayList<Integer> line) {
         @Override
         public String toString() {
             return "detectStatus{" +
@@ -68,8 +69,8 @@ public class StrDetect {
         }, 0);
         if (detectFlag[0]) {
             // Return
-            return new detectStatus(true, classNameList, lineList);
+            return new detectStatus(true, classInfo.jarFileName(), classNameList, lineList);
         }
-        return new detectStatus(true, null, null);
+        return new detectStatus(false, null  ,null, null);
     }
 }
