@@ -1,20 +1,48 @@
-package ren.lawliet.Java.F2kDoor;
+package ren.lawliet.Java.F2kDoor
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.io.ByteArrayInputStream
+import java.io.IOException
+import java.io.InputStream
+import java.util.jar.JarFile
 
 /**
  * @author Coaixy
  * @createTime 2024-07-15
  * @packageName ren.lawliet.Java.F2kDoor
  */
+object ClassFinder {
+    /**
+     * Get Class Input Stream Map
+     *
+     * @param jarFilePathList Jar File Path List
+     * @return
+     */
+    fun getClassInputStreamMap(jarFilePathList: ArrayList<String>): ArrayList<ClassInfo> {
+        val classInfoList = ArrayList<ClassInfo>()
+        // Load all class files from jar files
+        for (jarFilePathStr in jarFilePathList) {
+            try {
+                JarFile(jarFilePathStr).use { jarFile ->
+                    val entries = jarFile.entries()
+                    while (entries.hasMoreElements()) {
+                        val entry = entries.nextElement()
+                        if (entry.isDirectory) {
+                            continue
+                        }
+                        val `is` = jarFile.getInputStream(entry)
+                        val data = `is`.readAllBytes()
+                        if (entry.name.endsWith(".class")) {
+                            classInfoList.add(ClassInfo(jarFilePathStr, entry.name, ByteArrayInputStream(data)))
+                        }
+                    }
+                }
+            } catch (e: IOException) {
+                println("Error: " + e.message + " " + jarFilePathStr)
+            }
+        }
+        return classInfoList
+    }
 
-public class ClassFinder {
     /**
      * Class Info
      *
@@ -22,42 +50,14 @@ public class ClassFinder {
      * @param className
      * @param classInputStream
      */
-    public record ClassInfo(String jarFileName, String className, InputStream classInputStream) {
-        @Override
-        public String toString() {
-            return jarFileName + " " + className + " " + classInputStream.toString() + "\n";
+    @JvmRecord
+    data class ClassInfo(
+        @JvmField val jarFileName: String,
+        @JvmField val className: String,
+        @JvmField val classInputStream: InputStream
+    ) {
+        override fun toString(): String {
+            return "$jarFileName $className $classInputStream\n"
         }
-    }
-
-    /**
-     * Get Class Input Stream Map
-     *
-     * @param jarFilePathList Jar File Path List
-     * @return
-     */
-    public static ArrayList<ClassInfo> getClassInputStreamMap(ArrayList<String> jarFilePathList) {
-        ArrayList<ClassInfo> classInfoList = new ArrayList<>();
-        // Load all class files from jar files
-        for (String jarFilePathStr : jarFilePathList) {
-            try (JarFile jarFile = new JarFile(jarFilePathStr)) {
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    if (entry.isDirectory()) {
-                        continue;
-                    }
-                    InputStream is = jarFile.getInputStream(entry);
-                    byte[] data = is.readAllBytes();
-                    if (entry.getName().endsWith(".class")) {
-                        classInfoList.add(new ClassInfo(jarFilePathStr, entry.getName(), new ByteArrayInputStream(data)));
-                    }
-
-                }
-            } catch (IOException e) {
-                System.out.println("Error: " + e.getMessage() + " " + jarFilePathStr);
-
-            }
-        }
-        return classInfoList;
     }
 }

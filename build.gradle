@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 group = 'ren.lawliet.Java'
@@ -14,6 +15,7 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation 'org.ow2.asm:asm:9.7'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
 }
 shadowJar{
@@ -25,4 +27,7 @@ shadowJar{
 }
 test {
     useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(17)
 }

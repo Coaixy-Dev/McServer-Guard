@@ -1,76 +1,76 @@
-package ren.lawliet.Java.F2kDoor;
+package ren.lawliet.Java.F2kDoor
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-
-import java.io.IOException;
-import java.util.ArrayList;
+import org.objectweb.asm.*
+import java.io.IOException
 
 /**
  * @author Coaixy
  * @createTime 2024-07-15
  * @packageName ren.lawliet.Java.F2kDoor
  */
+object StrDetect {
+    private const val TARGET_STRING = "setop"
+    private const val BUFFER_SIZE = TARGET_STRING.length
 
-public class StrDetect {
-    private static final String TARGET_STRING = "setop";
-    private static final int BUFFER_SIZE = TARGET_STRING.length();
+    @Throws(IOException::class)
+    fun detectString(classInfo: ClassFinder.ClassInfo): detectStatus {
+        val classReader = ClassReader(classInfo.classInputStream)
+        val buffer = StringBuilder()
 
-    public record detectStatus(boolean status, String jarFileName, ArrayList<String> className,
-                               ArrayList<Integer> line) {
-        @Override
-        public String toString() {
+        val classNameList = ArrayList<String>()
+        val lineList = ArrayList<Int>()
+        val detectFlag = arrayOf(false)
+
+        classReader.accept(object : ClassVisitor(Opcodes.ASM9) {
+            private var currentLine = -1
+
+            override fun visitMethod(
+                access: Int,
+                name: String,
+                descriptor: String,
+                signature: String,
+                exceptions: Array<String>
+            ): MethodVisitor {
+                return object : MethodVisitor(Opcodes.ASM9) {
+                    override fun visitLineNumber(line: Int, start: Label) {
+                        super.visitLineNumber(line, start)
+                        currentLine = line
+                    }
+
+                    override fun visitLdcInsn(value: Any) {
+                        if (value is String) {
+                            buffer.append(value)
+                            if (buffer.length > BUFFER_SIZE) {
+                                buffer.delete(0, buffer.length - BUFFER_SIZE)
+                            }
+                            if (buffer.toString().equals(TARGET_STRING, ignoreCase = true)) {
+                                detectFlag[0] = true
+                                classNameList.add(classInfo.className)
+                                lineList.add(currentLine)
+                            }
+                        }
+                    }
+                }
+            }
+        }, 0)
+        if (detectFlag[0]) {
+            // Return
+            return detectStatus(true, classInfo.jarFileName, classNameList, lineList)
+        }
+        return detectStatus(false, null, null, null)
+    }
+
+    @JvmRecord
+    data class detectStatus(
+        val status: Boolean, val jarFileName: String?, val className: ArrayList<String>?,
+        val line: ArrayList<Int>?
+    ) {
+        override fun toString(): String {
             return "detectStatus{" +
                     "status=" + status +
                     ", className=" + className +
                     ", line=" + line +
-                    '}' + "\n";
+                    '}' + "\n"
         }
-    }
-
-    public static detectStatus detectString(ClassFinder.ClassInfo classInfo) throws IOException {
-        ClassReader classReader = new ClassReader(classInfo.classInputStream());
-        StringBuilder buffer = new StringBuilder();
-
-        ArrayList<String> classNameList = new ArrayList<>();
-        ArrayList<Integer> lineList = new ArrayList<>();
-        final Boolean[] detectFlag = {false};
-
-        classReader.accept(new ClassVisitor(Opcodes.ASM9) {
-            private int currentLine = -1;
-
-            @Override
-            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-                return new MethodVisitor(Opcodes.ASM9) {
-                    @Override
-                    public void visitLineNumber(int line, org.objectweb.asm.Label start) {
-                        super.visitLineNumber(line, start);
-                        currentLine = line;
-                    }
-
-                    @Override
-                    public void visitLdcInsn(Object value) {
-                        if (value instanceof String str) {
-                            buffer.append(str);
-                            if (buffer.length() > BUFFER_SIZE) {
-                                buffer.delete(0, buffer.length() - BUFFER_SIZE);
-                            }
-                            if (buffer.toString().equalsIgnoreCase(TARGET_STRING)) {
-                                detectFlag[0] = true;
-                                classNameList.add(classInfo.className());
-                                lineList.add(currentLine);
-                            }
-                        }
-                    }
-                };
-            }
-        }, 0);
-        if (detectFlag[0]) {
-            // Return
-            return new detectStatus(true, classInfo.jarFileName(), classNameList, lineList);
-        }
-        return new detectStatus(false, null  ,null, null);
     }
 }
