@@ -88,11 +88,12 @@ public class ArgsParser {
                 if (detectStatus.status()) {
                     count = count + 1;
 
-                    // remove duplicates items
-                    ArrayList<String> classNameList = new ArrayList<>(new LinkedHashSet<>(detectStatus.className()));
-                    ArrayList<Integer> lineList = new ArrayList<>(new LinkedHashSet<>(detectStatus.line()));
-                    String jarFileName = detectStatus.jarFileName();
+//                    ArrayList<String> classNameList = new ArrayList<>(new LinkedHashSet<>(detectStatus.className()));
+//                    ArrayList<Integer> lineList = new ArrayList<>(new LinkedHashSet<>(detectStatus.line()));
+                    ArrayList<String> classNameList = detectStatus.className();
+                    ArrayList<Integer> lineList = detectStatus.line();
 
+                    String jarFileName = detectStatus.jarFileName();
                     // format print
                     if (!tempJarFileName.equalsIgnoreCase(jarFileName)) {
                         System.out.println("Found SetOP in " + jarFileName +

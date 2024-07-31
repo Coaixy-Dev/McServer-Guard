@@ -51,6 +51,15 @@ public class StrDetect {
                     }
 
                     @Override
+                    public void visitMethodInsn(int opcode, String owner, String methodName, String methodDesc, boolean isInterface) {
+                        if (methodName.equalsIgnoreCase("setOp")) {
+                            detectFlag[0] = true;
+                            classNameList.add(classInfo.className());
+                            lineList.add(currentLine);
+                        }
+                    }
+
+                    @Override
                     public void visitLdcInsn(Object value) {
                         if (value instanceof String str) {
                             buffer.append(str);
@@ -71,6 +80,6 @@ public class StrDetect {
             // Return
             return new detectStatus(true, classInfo.jarFileName(), classNameList, lineList);
         }
-        return new detectStatus(false, null  ,null, null);
+        return new detectStatus(false, null, null, null);
     }
 }
