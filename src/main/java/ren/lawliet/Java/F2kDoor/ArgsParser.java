@@ -58,9 +58,23 @@ public class ArgsParser {
                         System.exit(0);
                     }
                 }
-                System.out.println(selectType);
+                for (String selected : selectType) {
+                    switch (selected) {
+                        case "String" -> StringRunner();
+                        case "Plugin" -> PluginRunner();
+                        case "Socket" -> SocketRunner();
+                    }
+                }
             }
         }
+    }
+
+    private void SocketRunner() {
+
+    }
+
+    private void PluginRunner() {
+
     }
 
     private void StringRunner() {
