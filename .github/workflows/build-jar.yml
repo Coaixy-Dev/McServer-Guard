@@ -19,7 +19,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew jar # 编译项目并打包 JAR 文件
+        run: ./gradlew shadowJar # 编译项目并打包 JAR 文件
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
